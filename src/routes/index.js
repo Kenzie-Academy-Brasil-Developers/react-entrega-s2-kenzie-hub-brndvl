@@ -12,19 +12,19 @@ export const Routes = () => {
   useEffect(() => {
     const token = window.localStorage.getItem("@KenzieHub:token");
 
-    if(token){
-      setAuthenticated(true)
+    if (token) {
+      setAuthenticated(true);
     }
   }, [authenticated]);
 
   return (
     <Switch>
       <Route exact path="/">
-        <Home authenticated={authenticated}/>
+        <Home authenticated={authenticated} />
       </Route>
 
       <Route path="/signup">
-        <Signup authenticated={authenticated}/>
+        <Signup authenticated={authenticated} />
       </Route>
 
       <Route path="/login">
@@ -35,7 +35,10 @@ export const Routes = () => {
       </Route>
 
       <Route path="/dashboard">
-        <Dashboard authenticated={authenticated}/>
+        <Dashboard
+          authenticated={authenticated}
+          setAuthenticated={setAuthenticated}
+        />
       </Route>
     </Switch>
   );

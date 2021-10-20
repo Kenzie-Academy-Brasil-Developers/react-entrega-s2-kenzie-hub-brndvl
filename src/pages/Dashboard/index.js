@@ -1,4 +1,4 @@
-import { Redirect } from "react-router-dom";
+import { Redirect, useHistory } from "react-router-dom";
 import { Container, InputContainer, TechsContainer } from "./styles";
 import { Input } from "../../components/Input";
 import { Button } from "../../components/Button";
@@ -9,14 +9,16 @@ import { api } from "../../services/api";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
 
-export const Dashboard = ({ authenticated }) => {
+export const Dashboard = ({ authenticated, setAuthenticated }) => {
   const [user, setUser] = useState("");
 
   const [techs, setTechs] = useState([]);
 
   const { register, handleSubmit } = useForm();
 
-  const [token] = useState(
+  const history = useHistory();
+
+  const [token, setToken] = useState(
     JSON.parse(localStorage.getItem("@KenzieHub:token") || "")
   );
 
@@ -67,6 +69,13 @@ export const Dashboard = ({ authenticated }) => {
       .then((response) => setTechs(newArr));
   };
 
+  const logOut = () => {
+    localStorage.clear()
+    setToken("")
+    setAuthenticated(false)
+    history.push("/")
+  };
+
   if (!authenticated) {
     return <Redirect to="/login" />;
   }
@@ -95,6 +104,7 @@ export const Dashboard = ({ authenticated }) => {
           />
         ))}
       </TechsContainer>
+      <Button onClick={logOut}>Logout</Button>
     </Container>
   );
 };
