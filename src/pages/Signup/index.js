@@ -80,7 +80,7 @@ export const Signup = ({ authenticated }) => {
               register={register}
               icon={FiPhone}
               label="Contato"
-              placeholder="Número de Contato"
+              placeholder="Contato"
               error={errors.contact?.message}
             ></Input>
             <Input

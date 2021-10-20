@@ -27,16 +27,20 @@ export const Login = ({ setAuthenticated, authenticated }) => {
   const history = useHistory();
 
   const onSubFunc = (data) => {
+      console.log(data)
     api
       .post("/sessions", data)
       .then((response) => {
         localStorage.clear();
-        localStorage.setItem("@KenzieHub:token", response.data.token);
+        localStorage.setItem("@KenzieHub:token", JSON.stringify(response.data.token));
+        localStorage.setItem("@userID", JSON.stringify(response.data.user.id))
         setAuthenticated(true);
         return history.push("/dashboard");
       })
       .catch((err) => toast.error("E-mail ou senha inválidos."));
   };
+
+  
 
   if (authenticated) {
     return <Redirect to="/dashboard" />;

@@ -10,37 +10,62 @@ import { toast } from "react-toastify";
 import { useEffect } from "react";
 
 export const Dashboard = ({ authenticated }) => {
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState("");
 
   const [techs, setTechs] = useState([]);
 
   const { register, handleSubmit } = useForm();
 
-  const token = JSON.parse(localStorage.getItem("@KenzieHub:token"));
+  const [token] = useState(
+    JSON.parse(localStorage.getItem("@KenzieHub:token") || "")
+  );
 
-  const addTechs = (data) => {
+  const [userId] = useState(JSON.parse(localStorage.getItem("@userID") || ""));
+  const loadTechs = () => {
     api
-      .post("/users/techs", data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      .get(`/users/${userId}`)
+      .then((response) => {
+        setTechs(response.data.techs);
+        setUser(response.data.name);
       })
-      .then((response) => toast.success("Nova tecnologia adicionada"));
+      .catch((err) => console.log(err));
+  };
+
+  const clear = () => {
+    setTechs([]);
+    setUser("");
   };
 
   useEffect(() => {
+    loadTechs();
+    return () => {
+      clear();
+    };
+  }, []);
+
+  const addTech = (tech) => {
+    console.log(tech);
     api
-      .get("/users", {
+      .post("/users/techs", tech, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      .then((response) => setUser(response.data));
-  }, [token]);
+      .then((response) => loadTechs())
+      .then((response) => toast.success("Nova tecnologia foi adicionada"));
+  };
 
-  const removeTech = () => {};
+  const removeTech = (id) => {
+    const newArr = techs.filter((tech) => tech.id !== id);
 
-  setTechs(user.techs);
+    api
+      .delete(`/users/techs/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => setTechs(newArr));
+  };
 
   if (!authenticated) {
     return <Redirect to="/login" />;
@@ -48,7 +73,8 @@ export const Dashboard = ({ authenticated }) => {
 
   return (
     <Container>
-      <InputContainer onSubmit={handleSubmit(addTechs)}>
+      <h1>Olá, {user}.</h1>
+      <InputContainer onSubmit={handleSubmit(addTech)}>
         <section>
           <Input
             name="title"
@@ -62,8 +88,10 @@ export const Dashboard = ({ authenticated }) => {
       <TechsContainer>
         {techs.map((tech) => (
           <Card
+            key={tech.id}
             title={tech.title}
             status={tech.status}
+            onClick={() => removeTech(tech.id)}
           />
         ))}
       </TechsContainer>
